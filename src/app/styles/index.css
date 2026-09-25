@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Spectral:wght@500&display=swap");
+@import "tailwindcss";
+@import "./screens.css" layer(components);
+
+@theme {
+    --font-sans: "Source Sans Pro", Arial, Helvetica, sans-serif;
+    --color-background: #080c10;
+    --color-surface: #273440;
+    --color-foreground: #edf0f5;
+    --color-border: #27313e;
+    --color-muted: #93a0b3;
+    --color-accent: #369eff;
+    --color-chip: #202833;
+}

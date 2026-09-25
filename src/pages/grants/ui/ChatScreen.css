@@ -1,0 +1,323 @@
+.grant-chat {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100dvh - 73px - env(safe-area-inset-bottom, 0px));
+  min-height: 527px;
+  color: #e2e4e5;
+  font-family: var(--font-sans);
+}
+
+.grant-chat__header {
+  display: flex;
+  flex: 0 0 73px;
+  min-height: 73px;
+  max-height: 73px;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 19px;
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(9.25px);
+}
+
+.grant-chat__avatar {
+  display: block;
+  flex-shrink: 0;
+}
+
+.grant-chat__header h1 {
+  margin: 1px 0 9px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.grant-chat__header p {
+  margin: 0;
+  color: rgb(226 228 229 / 70%);
+  font-size: 12px;
+  line-height: 13.57px;
+}
+
+.grant-chat__conversation {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 17px 20px;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #536879 transparent;
+}
+
+.grant-chat__date {
+  margin: 0 0 11px;
+  color: rgb(226 228 229 / 70%);
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.grant-chat__message {
+  width: min(319px, 100%);
+  border: 0.7px solid rgb(226 228 229 / 32%);
+  border-radius: 20px 20px 20px 0;
+  padding: 9px 9px 8px;
+  background: rgb(217 217 217 / 20%);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.131;
+  overflow-wrap: anywhere;
+}
+
+.grant-chat__message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.grant-chat__message--welcome {
+  min-height: 180px;
+}
+
+.grant-chat__message--welcome .grant-chat__time {
+  margin-top: -6px;
+}
+
+.grant-chat__time {
+  display: block;
+  margin: 0 6px 0 0;
+  color: rgb(226 228 229 / 70%);
+  text-align: right;
+  font-size: 12px;
+  line-height: 13.57px;
+}
+
+.grant-chat__entry {
+  margin-top: 13px;
+}
+
+.grant-chat__message--user {
+  width: fit-content;
+  max-width: 90%;
+  margin-left: auto;
+  border-radius: 20px 20px 0;
+  background: rgb(83 104 121 / 70%);
+}
+
+.grant-chat__message--user .grant-chat__time {
+  margin-top: 6px;
+}
+
+.grant-chat__grant {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+  border: 1px solid rgb(226 228 229 / 20%);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgb(0 0 0 / 18%);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.grant-chat__grant small,
+.grant-chat__grant-action {
+  color: rgb(226 228 229 / 75%);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.grant-chat__grant-action {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.grant-chat__controls {
+  flex: 0 0 108px;
+  padding-bottom: 12px;
+}
+
+.grant-chat__prompts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  overflow-x: auto;
+  padding: 0 14px;
+  scrollbar-width: none;
+}
+
+.grant-chat__prompts::-webkit-scrollbar {
+  display: none;
+}
+
+.grant-chat__prompts button {
+  display: inline-flex;
+  height: 29px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 0.7px solid rgb(226 228 229 / 20%);
+  border-radius: 15px;
+  padding: 0 15px;
+  background: rgb(83 104 121 / 70%);
+  color: #e2e4e5;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.grant-chat__prompts button:nth-child(1) { min-width: 142px; }
+.grant-chat__prompts button:nth-child(2) { min-width: 168px; }
+.grant-chat__prompts button:nth-child(3) { min-width: 195px; }
+
+.grant-chat__composer {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 14px 0;
+  border: 1px solid rgb(226 228 229 / 22%);
+  border-radius: 22px;
+  padding: 4px 5px 4px 14px;
+  background: rgb(217 217 217 / 12%);
+}
+
+.grant-chat__composer:focus-within {
+  outline: 1px solid rgb(226 228 229 / 65%);
+  outline-offset: 2px;
+}
+
+.grant-chat__composer input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  padding: 0;
+  outline: 0;
+  background: transparent;
+  color: #e2e4e5;
+  font: inherit;
+  font-size: 16px;
+}
+
+.grant-chat__composer input::placeholder {
+  color: rgb(226 228 229 / 60%);
+  font-size: 14px;
+}
+
+.grant-chat__composer button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  place-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #536879;
+  color: #e2e4e5;
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.grant-chat__composer button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.grant-chat button:focus-visible,
+.grant-chat a:focus-visible {
+  outline: 2px solid #e2e4e5;
+  outline-offset: 3px;
+}
+
+.grant-chat__grant:hover,
+.grant-chat__prompts button:hover {
+  background: rgb(83 104 121 / 90%);
+}
+
+@media (max-height: 600px) {
+  .grant-chat { min-height: 0; }
+}
+
+@media (min-width: 768px) {
+  .grant-chat {
+    width: calc(100% - 2 * var(--app-gutter, 32px));
+    max-width: 1080px;
+    height: calc(100dvh - var(--app-nav-height, 73px) - 48px - env(safe-area-inset-bottom, 0px));
+    min-height: 0;
+    flex-shrink: 0;
+    margin: 24px auto;
+    overflow: hidden;
+  }
+
+  .grant-chat__conversation {
+    padding: 24px;
+  }
+
+  .grant-chat__date {
+    margin-bottom: 16px;
+  }
+
+  .grant-chat__message {
+    width: min(70%, 640px);
+    padding: 14px 16px 12px;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .grant-chat__message--welcome {
+    min-height: 0;
+  }
+
+  .grant-chat__message--welcome .grant-chat__time {
+    margin-top: 6px;
+  }
+
+  .grant-chat__message--user {
+    width: fit-content;
+    max-width: min(70%, 640px);
+  }
+
+  .grant-chat__entry {
+    margin-top: 16px;
+  }
+
+  .grant-chat__controls {
+    flex: 0 0 auto;
+    padding: 0 24px 24px;
+  }
+
+  .grant-chat__prompts {
+    gap: 12px;
+    height: 52px;
+    padding: 0;
+  }
+
+  .grant-chat__prompts button {
+    height: 34px;
+    border-radius: 17px;
+    font-size: 13px;
+  }
+
+  .grant-chat__composer {
+    height: 52px;
+    margin: 8px 0 0;
+    padding: 6px 6px 6px 18px;
+    border-radius: 26px;
+  }
+
+  .grant-chat__composer button {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grant-chat {
+    height: calc(100dvh - var(--app-nav-height, 80px) - 48px);
+  }
+}
