@@ -5,7 +5,6 @@ type MaxBridge = {
 }
 declare global { interface Window { WebApp?: MaxBridge } }
 
-// Capture before hash-based navigation can replace MAX's launch fragment.
 const launch = new URLSearchParams(window.location.hash.slice(1))
 const launchValues = launch.getAll('WebAppData')
 const duplicateLaunch = new Set(launch.keys()).size !== [...launch.keys()].length

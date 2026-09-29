@@ -1,4 +1,3 @@
-/** Profile stored by the backend; no independent browser persistence. */
 export type BusinessProfile = {
   name: string
   categoryId: string

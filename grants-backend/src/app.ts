@@ -15,7 +15,6 @@ import { checkExpiringGrantsAndNotify } from './services/notifications.js'
 
 export function createApp() {
   validateConfig()
-  // Existing database data always wins. Seed only a new, empty database.
   seedGrants(true)
   const app = express()
   app.disable('x-powered-by')

@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { createGrantBot } from './bot.js'
 
-// Only the process entry point loads secrets and starts MAX polling.
 const envPath = new URL('../../.env', import.meta.url)
 if (fs.existsSync(envPath)) process.loadEnvFile(fileURLToPath(envPath))
 

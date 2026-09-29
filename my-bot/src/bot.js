@@ -32,7 +32,7 @@ export function createGrantBot({ token, username, apiBase, internalKey, fetchImp
   bot.on('message_created', ctx => ctx.reply('Откройте приложение кнопкой ниже или напишите /help.', { attachments: [keyboard] }))
   bot.catch(async (_error, ctx) => {
     console.error('[bot] Request failed; check API availability and server configuration.')
-    try { await ctx.reply('Сервис временно недоступен. Попробуйте ещё раз позже.') } catch { /* No secret-bearing SDK error output. */ }
+    try { await ctx.reply('Сервис временно недоступен. Попробуйте ещё раз позже.') } catch {}
   })
   return bot
 }

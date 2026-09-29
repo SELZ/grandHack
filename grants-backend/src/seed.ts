@@ -66,7 +66,6 @@ export function seedGrants(onlyIfEmpty = false) {
   console.log(`[seed] upserted ${grants.length} grants`)
 }
 
-// Allow running directly: npm run seed
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isMain) {
   seedGrants()

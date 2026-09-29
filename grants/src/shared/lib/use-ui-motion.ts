@@ -1,14 +1,12 @@
 import { useEffect, type RefObject } from "react";
 import { gsap } from "gsap";
 
-/** Movement only; control colors and focus remain Tailwind states. */
 export function useUiMotion(rootRef: RefObject<HTMLElement | null>, view: string) {
     useEffect(() => {
         const root = rootRef.current;
         if (!root) return;
         const media = gsap.matchMedia();
         media.add("(prefers-reduced-motion: no-preference)", () => {
-            // Keep only in-flight/hovered targets, not every tween in a long-lived context.
             const tweens = new Map<HTMLElement, gsap.core.Tween>();
             const moved = new Set<HTMLElement>();
             const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");

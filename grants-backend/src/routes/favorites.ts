@@ -38,6 +38,5 @@ favoritesRouter.delete('/:grantId', (req, res) => {
     req.user!.userId,
     req.params.grantId,
   )
-  // Keep delivery history: unfavorite/refavorite must not re-send the same reminder.
   res.json({ ok: true })
 })

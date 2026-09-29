@@ -13,7 +13,6 @@ function readDraft(): string {
 }
 
 export function ChatScreen() {
-  // Preserve existing drafts and conversation storage while the assistant is unavailable.
   const [draft] = useState(readDraft)
 
   return (

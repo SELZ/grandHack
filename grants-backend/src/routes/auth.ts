@@ -17,11 +17,6 @@ authRouter.post('/dev', (req, res) => {
   res.json({ token: signSessionToken({ userId: user.id, maxUserId: -1 }), user: { id: user.id, maxUserId: -1, firstName: user.first_name } })
 })
 
-/**
- * Body: { initData: string } — the raw value of `window.WebApp.initData` from the
- * MAX Mini App SDK. We validate its signature against MAX_BOT_TOKEN, upsert the
- * user, and hand back our own short-lived-ish session JWT for subsequent calls.
- */
 authRouter.post('/max', (req, res) => {
   if (!process.env.MAX_BOT_TOKEN) {
     res.status(503).json({ error: 'MAX authentication is not configured' })

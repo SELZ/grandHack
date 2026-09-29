@@ -10,17 +10,6 @@ function getBotToken(): string {
   return token
 }
 
-/**
- * Validates the `WebAppData` string the MAX Mini App receives via `window.WebApp.initData`.
- *
- * Algorithm (see https://dev.max.ru/docs/webapps/validation):
- *   secret_key = HMAC_SHA256("WebAppData", BOT_TOKEN)
- *   hash       = hex(HMAC_SHA256(secret_key, launch_params))
- * where `launch_params` is every `key=value` pair except `hash`, URL-decoded,
- * sorted a→z by key, and joined with "\n".
- *
- * Also rejects data older than `maxAgeSeconds` (replay protection), based on `auth_date`.
- */
 export function validateMaxInitData(
   initData: string,
   botToken: string = getBotToken(),
@@ -70,7 +59,6 @@ export function validateMaxInitData(
   return true
 }
 
-/** Pulls the `user` launch param (a JSON string) out of a validated initData string. */
 export function parseMaxInitDataUser(initData: string): MaxWebAppUser | null {
   const pairs = initData.split('&').map((part) => {
     const eqIndex = part.indexOf('=')
@@ -97,10 +85,6 @@ export function parseMaxInitDataUser(initData: string): MaxWebAppUser | null {
   }
 }
 
-/**
- * Sends a direct message from the bot to a MAX user (personal dialog, not a group chat).
- * See POST /messages: https://dev.max.ru/docs-api/methods/POST/messages
- */
 export async function sendMaxMessage(
   maxUserId: number,
   text: string,

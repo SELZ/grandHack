@@ -31,7 +31,6 @@ export function initSchema() {
       isNew INTEGER NOT NULL DEFAULT 0
     );
 
-    -- One row per person who opened the MAX Mini App at least once.
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       max_user_id INTEGER NOT NULL UNIQUE,
@@ -59,8 +58,6 @@ export function initSchema() {
       PRIMARY KEY (user_id, grant_id)
     );
 
-    -- Tracks which (user, grant) pairs already got a "deadline is close" ping,
-    -- so the cron job never sends the same MAX message twice.
     CREATE TABLE IF NOT EXISTS notification_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

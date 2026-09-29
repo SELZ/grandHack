@@ -2,7 +2,6 @@ import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
-// Same server-only environment for the API and bot, independent of the cwd.
 dotenv.config({ path: fileURLToPath(new URL('../../.env', import.meta.url)) })
 const backendRoot = fileURLToPath(new URL('../', import.meta.url))
 

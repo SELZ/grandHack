@@ -64,7 +64,6 @@ export function filterGrants(items: readonly Grant[], filters: GrantFiltersValue
     const searchText = getSearchText(grant)
 
     return searchTerms.every((term) => {
-      // IT/ИТ is an abbreviation: do not match it inside unrelated words.
       if (term === 'it' || term === 'ит') {
         return /(?:^|[^\p{L}\p{N}])(?:it|ит)(?=$|[^\p{L}\p{N}])/u.test(searchText)
       }

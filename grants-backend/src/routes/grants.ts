@@ -25,12 +25,6 @@ function rowToGrant(row: GrantRow): Grant {
   }
 }
 
-/**
- * GET /api/grants?industry=&region=&stage=&q=
- * All filters are optional and combine with AND; `q` does a simple substring
- * search over title/org/summary. No auth required — this mirrors the public
- * catalog the React app already renders from a static JSON file.
- */
 grantsRouter.get('/', (req, res) => {
   const { industry, region, stage, q } = req.query
 

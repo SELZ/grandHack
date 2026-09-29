@@ -1,4 +1,3 @@
-// Mirrors src/entities/grant/model/types.ts on the React frontend, plus backend-only entities.
 
 export type Grant = {
   id: string
@@ -27,18 +26,17 @@ export type GrantRow = {
   amountText: string
   deadlineISO: string | null
   deadlineText: string
-  industries: string // JSON-encoded string[]
-  regions: string // JSON-encoded string[]
-  stages: string // JSON-encoded string[]
+  industries: string
+  regions: string
+  stages: string
   summary: string
-  requirements: string // JSON-encoded string[]
-  notes: string // JSON-encoded string[]
+  requirements: string
+  notes: string
   sphere: string
   url: string
-  isNew: number // 0 | 1
+  isNew: number
 }
 
-// A user as identified by the MAX messenger ("user" object inside WebAppData).
 export type User = {
   id: number
   max_user_id: number
@@ -64,7 +62,6 @@ export type AuthedRequestUser = {
   maxUserId: number
 }
 
-// Parsed contents of the MAX Mini App "user" launch param.
 export type MaxWebAppUser = {
   id: number
   first_name: string

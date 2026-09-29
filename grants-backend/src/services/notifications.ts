@@ -39,14 +39,6 @@ function buildMessage(row: ExpiringRow): string {
     .join('\n')
 }
 
-/**
- * Finds every (user, favorited grant) pair whose deadline is within the warning
- * window and hasn't been notified about yet, sends a MAX message via the bot for
- * each one, and records it in notification_log so it never repeats.
- *
- * Returns a summary — useful both for the cron job's own logging and for the
- * manual /api/internal/notify-check trigger used while testing.
- */
 let running: Promise<{ checked: number; sent: number; failed: number }> | null = null
 export function checkExpiringGrantsAndNotify() {
   if (!config.notifications) return Promise.resolve({ checked: 0, sent: 0, failed: 0 })

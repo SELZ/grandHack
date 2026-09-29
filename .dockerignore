@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/*.db
+**/*.db-*
+**/.DS_Store
+**/*.log
+my-bot/users.json
+backups

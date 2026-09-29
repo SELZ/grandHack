@@ -92,7 +92,7 @@
     .grant-favorite:hover { background: rgb(226 228 229 / 10%); }
 }
 
-/* The Figma frame defines the phone layout, not the application's desktop width. */
+
 @media (min-width: 768px) {
     :root {
         --app-width: 100%;

@@ -4,7 +4,6 @@ import { timingSafeEqual } from 'node:crypto'
 import type { AuthedRequestUser } from '../types.js'
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: AuthedRequestUser
@@ -22,11 +21,6 @@ export function signSessionToken(user: AuthedRequestUser): string {
   return jwt.sign(user, getJwtSecret(), { expiresIn: '12h', algorithm: 'HS256', issuer: 'grants-api', audience: 'grants-app' })
 }
 
-/**
- * Requires an `Authorization: Bearer <token>` header containing the JWT issued by
- * POST /api/auth/max. This token is a normal backend session token, separate from
- * the raw MAX WebAppData used only once, at login, to prove who the user is.
- */
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization
   const token = header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : null
@@ -45,7 +39,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-/** For internal/admin endpoints called by trusted infra, not by the Mini App. */
 export function requireInternalKey(req: Request, res: Response, next: NextFunction) {
   const provided = req.headers['x-internal-key']
   const expected = process.env.INTERNAL_API_KEY
