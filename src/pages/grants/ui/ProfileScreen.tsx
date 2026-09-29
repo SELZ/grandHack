@@ -1,12 +1,13 @@
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { categories, stageLabels } from '@/entities/grant'
-import { businessProfileStorageKey, emptyBusinessProfile, legalForms, readBusinessProfile } from '@/features/match-business/model/business-profile'
-import type { BusinessProfile } from '@/features/match-business/model/business-profile'
+import { emptyBusinessProfile, legalForms, type BusinessProfile } from '@/entities/business-profile'
 import selectChevron from '@/shared/assets/profile/select-chevron.svg'
 import { Button, Select } from '@/shared/ui'
 
 type ProfileScreenProps = {
+  initialProfile: BusinessProfile
+  onSaveProfile: (profile: BusinessProfile) => Promise<void>
   onShowMatches: (categoryId: string, stage: string) => void
 }
 
@@ -17,9 +18,10 @@ const selectClass = `${controlClass} cursor-pointer appearance-none pr-10 [&:has
 const numberClass = `${controlClass} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`
 const chevronClass = 'profile-screen__chevron pointer-events-none absolute right-4 top-1/2 max-w-none -translate-y-1/2'
 
-export function ProfileScreen({ onShowMatches }: ProfileScreenProps) {
+export function ProfileScreen({ onShowMatches, initialProfile, onSaveProfile }: ProfileScreenProps) {
   const formId = useId()
-  const [profile, setProfile] = useState(readBusinessProfile)
+  const [profile, setProfile] = useState(initialProfile)
+  const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState('')
 
   function updateField(key: keyof BusinessProfile, value: string) {
@@ -27,25 +29,29 @@ export function ProfileScreen({ onShowMatches }: ProfileScreenProps) {
     setNotice('')
   }
 
-  function saveProfile(event: FormEvent<HTMLFormElement>) {
+  async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (saving) return
+    setSaving(true)
     try {
-      localStorage.setItem(businessProfileStorageKey, JSON.stringify({ ...profile, name: profile.name.trim() }))
-    } catch {
-      setNotice('Не удалось сохранить профиль. Разрешите сохранение данных в браузере и попробуйте ещё раз.')
+      await onSaveProfile({ ...profile, name: profile.name.trim() })
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Не удалось сохранить профиль на сервере.')
       return
-    }
+    } finally { setSaving(false) }
     onShowMatches(profile.categoryId || 'all', profile.stage)
   }
 
-  function clearProfile() {
-    setProfile({ ...emptyBusinessProfile })
+  async function clearProfile() {
+    if (saving) return
+    setSaving(true)
     try {
-      localStorage.removeItem(businessProfileStorageKey)
+      await onSaveProfile({ ...emptyBusinessProfile })
+      setProfile({ ...emptyBusinessProfile })
       setNotice('Форма очищена')
-    } catch {
-      setNotice('Форма очищена. Не удалось удалить сохранённые данные из браузера.')
-    }
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Не удалось очистить профиль на сервере.')
+    } finally { setSaving(false) }
   }
 
   return (
@@ -56,7 +62,7 @@ export function ProfileScreen({ onShowMatches }: ProfileScreenProps) {
       </header>
 
       <form className="profile-screen__form w-full min-w-0 max-w-4xl rounded-2xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-black/10 backdrop-blur-sm sm:p-6 lg:p-8" onSubmit={saveProfile}>
-        <div className="profile-screen__fields grid min-w-0 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-6">
+        <fieldset disabled={saving} className="profile-screen__fields grid min-w-0 gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-6">
           <div className={`${fieldClass} md:col-span-2`}>
             <label className={labelClass} htmlFor={`${formId}-name`}>Название бизнеса/проекта</label>
             <input
@@ -158,11 +164,11 @@ export function ProfileScreen({ onShowMatches }: ProfileScreenProps) {
               <img className={chevronClass} src={selectChevron} alt="" />
             </div>
           </div>
-        </div>
+        </fieldset>
 
         <div className="profile-screen__actions mt-6 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-2 lg:mt-8">
-          <Button type="submit" className="profile-screen__save h-11 w-full rounded-xl lg:h-12" data-ui-motion>Сохранить профиль</Button>
-          <Button variant="secondary" className="profile-screen__clear h-11 w-full rounded-xl lg:h-12" data-ui-motion onClick={clearProfile}>Очистить форму</Button>
+          <Button type="submit" disabled={saving} className="profile-screen__save h-11 w-full rounded-xl lg:h-12" data-ui-motion>{saving ? 'Сохранение…' : 'Сохранить профиль'}</Button>
+          <Button variant="secondary" disabled={saving} className="profile-screen__clear h-11 w-full rounded-xl lg:h-12" data-ui-motion onClick={clearProfile}>Очистить форму</Button>
         </div>
         <p className="profile-screen__notice mt-4 text-sm leading-6 text-white/70 empty:hidden" role="status" aria-live="polite">{notice}</p>
       </form>

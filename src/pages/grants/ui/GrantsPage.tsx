@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useUiMotion } from "@/shared/lib/use-ui-motion";
-import { GrantDetails, grants, type Grant } from "@/entities/grant";
+import { GrantDetails, type Grant } from "@/entities/grant";
 import { filterGrants, useGrantFilters } from "@/features/filter-grants";
-import { useFavorites } from "@/features/toggle-favorite";
-import { readBusinessProfile } from "@/features/match-business";
+import { useAppData } from "../model/use-app-data";
 import backgroundImage from "@/shared/assets/home/background.png";
 import { BottomNavigation } from "@/widgets/bottom-navigation";
 import { CatalogScreen } from "./CatalogScreen";
@@ -12,21 +11,21 @@ import { HomeScreen } from "./HomeScreen";
 import { ProfileScreen } from "./ProfileScreen";
 
 type View = "home" | "catalog" | "favorites" | "profile" | "assistant";
-const grantIds = grants.map((grant) => grant.id);
 const views: View[] = ["home", "catalog", "favorites", "profile", "assistant"];
 
 function readView(): View {
     const hash = window.location.hash.slice(1);
-    return views.find((view) => view === hash) ?? "home";
+    const value = new URLSearchParams(hash).get("view") ?? hash;
+    return views.find((view) => view === value) ?? "home";
 }
 
 export function GrantsPage() {
     const shellRef = useRef<HTMLDivElement>(null);
     const [view, setView] = useState<View>(readView);
-    useUiMotion(shellRef, view);
     const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
-    const [businessProfile, setBusinessProfile] = useState(readBusinessProfile);
-    const { favoriteIds, toggleFavorite } = useFavorites(grantIds);
+    const data = useAppData();
+    const { grants, favoriteIds, toggleFavorite } = data;
+    useUiMotion(shellRef, `${view}:${data.loading}:${Boolean(data.error)}`);
     const catalog = useGrantFilters();
     const favorites = useGrantFilters();
     const currentFilters = view === "favorites" ? favorites : catalog;
@@ -37,7 +36,6 @@ export function GrantsPage() {
         function handleNavigation() {
             setView(readView());
             setSelectedGrant(null);
-            setBusinessProfile(readBusinessProfile());
             window.scrollTo({ top: 0, behavior: "instant" });
         }
         window.addEventListener("hashchange", handleNavigation);
@@ -47,8 +45,11 @@ export function GrantsPage() {
     function navigate(nextView: View) {
         setView(nextView);
         setSelectedGrant(null);
-        setBusinessProfile(readBusinessProfile());
-        if (window.location.hash !== `#${nextView}`) window.location.hash = nextView;
+        const launch = new URLSearchParams(window.location.hash.slice(1));
+        if (launch.has("WebAppData") || launch.has("WebAppPlatform")) {
+            launch.set("view", nextView);
+            window.location.hash = launch.toString();
+        } else if (window.location.hash !== `#${nextView}`) window.location.hash = nextView;
         window.scrollTo({ top: 0, behavior: "instant" });
     }
 
@@ -57,10 +58,34 @@ export function GrantsPage() {
         navigate("catalog");
     }
 
+    useEffect(() => {
+        const back = window.WebApp?.BackButton;
+        if (!back) return;
+        const goBack = () => {
+            if (selectedGrant) setSelectedGrant(null);
+            else navigate("home");
+        };
+        if (view === "home" && !selectedGrant) back.hide();
+        else back.show();
+        back.onClick(goBack);
+        return () => { back.offClick(goBack); back.hide(); };
+    }, [view, selectedGrant, data.loading]);
+
+    if (data.loading || data.error) return (
+        <main className="flex min-h-dvh items-center justify-center bg-background px-6 text-foreground">
+            <div className="max-w-md space-y-4 text-center" role={data.error ? "alert" : "status"}>
+                <p>{data.error || "Загрузка данных…"}</p>
+                {data.error && <button className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 focus-visible:outline-2" onClick={data.retry}>Повторить</button>}
+            </div>
+        </main>
+    );
+
     return (
         <div ref={shellRef} className={`app-shell app-shell--${view}${view === "favorites" && visibleGrants.length === 0 ? " app-shell--empty" : ""} relative isolate flex min-h-dvh w-full max-w-none flex-col overflow-visible rounded-none border-0 bg-background [--app-width:100%] [--app-content-width:1248px] [--app-gutter:32px] [--app-nav-height:calc(73px+env(safe-area-inset-bottom,0px))] lg:[--app-nav-height:64px] [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-white/30 [&_a:focus-visible]:outline-none [&_a:focus-visible]:ring-2 [&_a:focus-visible]:ring-white/30`}>
             <div className={`app-backdrop fixed inset-0 after:min-h-0 ${view === "assistant" ? "after:hidden" : ""}`} aria-hidden="true"><img className="inset-0 h-full w-full object-cover" src={backgroundImage} alt="" /></div>
             <BottomNavigation activeTab={view} favoriteCount={favoriteIds.length} onNavigate={navigate} />
+            {data.localMode && view !== "assistant" && <p className="mx-auto w-full max-w-7xl px-4 pt-3 text-xs text-white/60 md:px-8">Локальный режим · тестовый пользователь · данные из БД сервера</p>}
+            {data.mutationError && <div role="alert" className="mx-auto w-full max-w-7xl px-4 py-3 text-sm md:px-8">{data.mutationError} <button className="underline" onClick={data.clearMutationError}>Закрыть</button></div>}
             {view === "home" && (
                 <HomeScreen
                     query={catalog.filters.query}
@@ -94,13 +119,13 @@ export function GrantsPage() {
                 />
             )}
             {view === "profile" && (
-                <ProfileScreen onShowMatches={(categoryId, stage) => {
+                <ProfileScreen initialProfile={data.profile} onSaveProfile={data.saveProfile} onShowMatches={(categoryId, stage) => {
                     catalog.applyProfile(categoryId, stage);
                     navigate("catalog");
                 }} />
             )}
             {view === "assistant" && (
-                <ChatScreen categoryId={businessProfile.categoryId || "all"} stage={businessProfile.stage} onOpenGrant={setSelectedGrant} />
+                <ChatScreen />
             )}
             <GrantDetails
                 grant={selectedGrant}

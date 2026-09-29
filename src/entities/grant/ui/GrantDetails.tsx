@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 import { Icon, IconButton } from '@/shared/ui'
 import { useDialogMotion } from '@/shared/lib/use-dialog-motion'
+import { openExternalLink } from '@/shared/lib/max-bridge'
 import savedFavoriteIcon from '@/shared/assets/catalog/star-filled.svg'
 import { getRegionLabel, stageLabels } from '../model/catalogs'
 import type { Grant } from '../model/types'
@@ -121,6 +122,7 @@ function GrantDetailsDialog({ grant, open, onClose, saved = false, onToggleFavor
             <a
               className="mt-6 flex min-h-13 items-center justify-center rounded-2xl border border-white/20 bg-[#536879]/70 px-4 py-2.5 text-center text-lg leading-[25px] font-semibold text-[#e2e4e5] no-underline outline-none transition-colors hover:bg-[#536879]/90 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-0 motion-reduce:transition-none md:mt-0"
               href={grant.url}
+              onClick={(event) => openExternalLink(event, grant.url)}
               target="_blank"
               rel="noopener noreferrer"
             >
