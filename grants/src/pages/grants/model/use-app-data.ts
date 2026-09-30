@@ -4,6 +4,15 @@ import { apiRequest } from '@/shared/api/client'
 import { maxInitData } from '@/shared/lib/max-bridge'
 import { emptyBusinessProfile, type BusinessProfile } from '@/entities/business-profile'
 
+function getWebUserId() {
+  const storageKey = 'grantshak-web-user-id'
+  const stored = localStorage.getItem(storageKey)
+  if (stored && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(stored)) return stored
+  const id = crypto.randomUUID()
+  localStorage.setItem(storageKey, id)
+  return id
+}
+
 export function useAppData() {
   const [grants, setGrants] = useState<Grant[]>([])
   const [favoriteIds, setFavoriteIds] = useState<string[]>([])
@@ -11,7 +20,6 @@ export function useAppData() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [mutationError, setMutationError] = useState('')
-  const [localMode, setLocalMode] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const token = useRef<string | null>(null)
   const pendingFavorites = useRef(new Set<string>())
@@ -21,10 +29,8 @@ export function useAppData() {
     token.current = null
     async function load() {
       const initData = await maxInitData()
-      const config = await apiRequest<{ devAuthEnabled: boolean }>('/config', { signal: controller.signal })
-      if (!initData && !config.devAuthEnabled) throw new Error('Откройте приложение через бота в MAX. Локальный вход на этом сервере выключен.')
-      const auth = await apiRequest<{ token: string }>(initData ? '/auth/max' : '/auth/dev', {
-        method: 'POST', body: JSON.stringify(initData ? { initData } : {}), signal: controller.signal,
+      const auth = await apiRequest<{ token: string }>(initData ? '/auth/max' : '/auth/web', {
+        method: 'POST', body: JSON.stringify(initData ? { initData } : { id: getWebUserId() }), signal: controller.signal,
       })
       const [catalog, favorites, business] = await Promise.all([
         fetchGrants(controller.signal),
@@ -36,7 +42,6 @@ export function useAppData() {
       setGrants(catalog)
       setFavoriteIds(favorites.grantIds)
       setProfile(business.profile)
-      setLocalMode(!initData)
       setLoading(false)
     }
     void load().catch(cause => {
@@ -66,6 +71,13 @@ export function useAppData() {
     setProfile(saved)
   }
 
-  return { grants, favoriteIds, profile, loading, error, mutationError, localMode, toggleFavorite, saveProfile,
+  async function askAssistant(message: string) {
+    if (!token.current) throw new Error('Сессия недоступна. Откройте приложение заново.')
+    return apiRequest<{ text: string; grantIds: string[] }>('/assistant', {
+      method: 'POST', body: JSON.stringify({ message }),
+    }, token.current)
+  }
+
+  return { grants, favoriteIds, profile, loading, error, mutationError, toggleFavorite, saveProfile, askAssistant,
     retry: () => { setLoading(true); setError(''); setAttempt(value => value + 1) }, clearMutationError: () => setMutationError('') }
 }

@@ -10,8 +10,9 @@ import { favoritesRouter } from './routes/favorites.js'
 import { grantsRouter } from './routes/grants.js'
 import { profileRouter } from './routes/profile.js'
 import { botRouter } from './routes/bot.js'
-import { requireInternalKey } from './middleware/auth.js'
+import { requireAuth, requireInternalKey } from './middleware/auth.js'
 import { checkExpiringGrantsAndNotify } from './services/notifications.js'
+import { answerGrantQuestion } from './services/assistant.js'
 
 export function createApp() {
   validateConfig()
@@ -48,6 +49,14 @@ export function createApp() {
   app.use('/api/grants', grantsRouter)
   app.use('/api/favorites', favoritesRouter)
   app.use('/api/profile', profileRouter)
+  app.post('/api/assistant', requireAuth, (req, res) => {
+    const message = typeof req.body?.message === 'string' ? req.body.message.trim() : ''
+    if (!message || message.length > 1000) {
+      res.status(400).json({ error: 'Message must contain between 1 and 1000 characters' })
+      return
+    }
+    res.json(answerGrantQuestion(message, req.user!.userId))
+  })
   app.use('/api/internal/bot', botRouter)
   app.post('/api/internal/notify-check', requireInternalKey, async (_req, res, next) => {
     if (!config.notifications) { res.status(403).json({ error: 'Notifications disabled' }); return }

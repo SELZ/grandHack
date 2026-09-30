@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { randomInt } from 'node:crypto'
 import { db } from '../db.js'
 import { parseMaxInitDataUser, validateMaxInitData } from '../max.js'
 import { signSessionToken } from '../middleware/auth.js'
@@ -15,6 +16,32 @@ authRouter.post('/dev', (req, res) => {
   db.prepare("INSERT OR IGNORE INTO users (max_user_id, first_name) VALUES (-1, 'Локальный тест')").run()
   const user = db.prepare('SELECT * FROM users WHERE max_user_id = -1').get() as User
   res.json({ token: signSessionToken({ userId: user.id, maxUserId: -1 }), user: { id: user.id, maxUserId: -1, firstName: user.first_name } })
+})
+
+authRouter.post('/web', (req, res) => {
+  const webId = typeof req.body?.id === 'string' ? req.body.id : ''
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(webId)) {
+    res.status(400).json({ error: 'Invalid browser session id' })
+    return
+  }
+
+  const createOrGetWebUser = db.transaction((id: string) => {
+    const existing = db.prepare(`
+      SELECT users.* FROM users JOIN web_users ON web_users.user_id = users.id WHERE web_users.web_id = ?
+    `).get(id) as User | undefined
+    if (existing) return existing
+
+    let maxUserId = 0
+    do { maxUserId = -randomInt(1, 2 ** 48) }
+    while (db.prepare('SELECT 1 FROM users WHERE max_user_id = ?').get(maxUserId))
+
+    const inserted = db.prepare("INSERT INTO users (max_user_id, first_name) VALUES (?, 'Веб-пользователь')").run(maxUserId)
+    db.prepare('INSERT INTO web_users (web_id, user_id) VALUES (?, ?)').run(id, inserted.lastInsertRowid)
+    return db.prepare('SELECT * FROM users WHERE id = ?').get(inserted.lastInsertRowid) as User
+  })
+  const user = createOrGetWebUser.immediate(webId)
+  const token = signSessionToken({ userId: user.id, maxUserId: user.max_user_id })
+  res.json({ token, user: { id: user.id, maxUserId: user.max_user_id, firstName: user.first_name } })
 })
 
 authRouter.post('/max', (req, res) => {

@@ -84,7 +84,6 @@ export function GrantsPage() {
         <div ref={shellRef} className={`app-shell app-shell--${view}${view === "favorites" && visibleGrants.length === 0 ? " app-shell--empty" : ""} relative isolate flex min-h-dvh w-full max-w-none flex-col overflow-visible rounded-none border-0 bg-background [--app-width:100%] [--app-content-width:1248px] [--app-gutter:32px] [--app-nav-height:calc(73px+env(safe-area-inset-bottom,0px))] lg:[--app-nav-height:64px] [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-white/30 [&_a:focus-visible]:outline-none [&_a:focus-visible]:ring-2 [&_a:focus-visible]:ring-white/30`}>
             <div className={`app-backdrop fixed inset-0 after:min-h-0 ${view === "assistant" ? "after:hidden" : ""}`} aria-hidden="true"><img className="inset-0 h-full w-full object-cover" src={backgroundImage} alt="" /></div>
             <BottomNavigation activeTab={view} favoriteCount={favoriteIds.length} onNavigate={navigate} />
-            {data.localMode && view !== "assistant" && <p className="mx-auto w-full max-w-7xl px-4 pt-3 text-xs text-white/60 md:px-8">Локальный режим · тестовый пользователь · данные из БД сервера</p>}
             {data.mutationError && <div role="alert" className="mx-auto w-full max-w-7xl px-4 py-3 text-sm md:px-8">{data.mutationError} <button className="underline" onClick={data.clearMutationError}>Закрыть</button></div>}
             {view === "home" && (
                 <HomeScreen
@@ -125,7 +124,7 @@ export function GrantsPage() {
                 }} />
             )}
             {view === "assistant" && (
-                <ChatScreen />
+                <ChatScreen grants={grants} onSendMessage={data.askAssistant} onOpenGrant={setSelectedGrant} />
             )}
             <GrantDetails
                 grant={selectedGrant}
