@@ -155,27 +155,25 @@ npm run build
 npm run bot
 ```
 
-Для TLS-соединения с API MAX перед запуском процесса задайте `NODE_EXTRA_CA_CERTS` с путём к PEM-файлу официального корневого сертификата. В Docker сертификат подключается автоматически. Настройка серверного окружения описана в [deploy/README.md](deploy/README.md).
+Для TLS-соединения с API MAX перед запуском процесса задайте `NODE_EXTRA_CA_CERTS` с путём к PEM-файлу официального корневого сертификата. В Docker сертификат подключается автоматически.
 
 В MAX доступны команды `/start`, `/app` и `/help`. Для одного токена запускайте только один процесс бота: одновременный локальный и серверный long polling может конфликтовать.
 
 Для открытия мини-приложения на телефоне сайт и API должны быть доступны по публичному HTTPS-адресу. Этот адрес необходимо сохранить в настройках мини-приложения у бота MAX. Адрес `127.0.0.1` на телефоне не ведёт на компьютер разработчика. Если бот выдан организаторами, привязку URL выполняет владелец бота.
 
-## Docker и папка deploy
+## Docker
 
-`deploy/` содержит файлы для размещения на VPS и технического воспроизведения серверного запуска:
+Файлы `Dockerfile`, `compose.yaml` и [production.env.example](production.env.example) находятся в корне проекта. Для запуска нужны работающие Docker Engine и Docker Compose v2.
 
-| Файлы | Для чего нужны |
-| --- | --- |
-| `deploy/README.md` | Инструкция серверного запуска, обновления и восстановления |
-| `deploy/production.env.example` | Шаблон `.env.production` для Docker Compose |
-| `deploy/nginx-http.conf`, `deploy/nginx-https.conf` | Настройка HTTP/HTTPS и проксирования запросов в backend |
-| `deploy/renew-certificate.sh`, `deploy/grantshak-cert-renew.*` | Продление сертификата по расписанию |
-| `deploy/backup.sh`, `deploy/grantshak-backup.*` | Резервное копирование SQLite по расписанию |
+При первом запуске скопируйте `production.env.example` в `.env.production`. Если заполненный `.env.production` уже есть, используйте его. Команда `npm run setup` создаёт только локальный `.env`.
 
-Для локального запуска через npm выполнять скрипты из `deploy/` не требуется. Для проверки Docker пригодится шаблон окружения; конфигурация Nginx, сертификаты и systemd нужны при размещении на Linux-сервере. Файлы `Dockerfile` и `compose.yaml` находятся в корне проекта.
+Compose запускает backend в production-режиме. В `.env.production` заполните `MAX_BOT_TOKEN`, `MAX_BOT_USERNAME`, `JWT_SECRET` и `INTERNAL_API_KEY`. Для каждого из двух секретов сгенерируйте отдельное случайное значение командой:
 
-При проверке Docker понадобятся работающие Docker Engine и Docker Compose v2, а также заполненный `.env.production` по шаблону из `deploy/`. `npm run setup` создаёт только локальный `.env`. Compose запускает backend в production-режиме, поэтому в `.env.production` требуются `MAX_BOT_TOKEN`, `MAX_BOT_USERNAME`, `JWT_SECRET` и `INTERNAL_API_KEY`; для локального сайта задайте `ALLOWED_ORIGINS=http://127.0.0.1:4000,http://localhost:4000`.
+```sh
+node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
+```
+
+Для локального сайта в шаблоне уже указано `ALLOWED_ORIGINS=http://127.0.0.1:4000,http://localhost:4000`. Файл `.env.production` исключён из Git.
 
 Для проверки сайта и API без запуска второй копии бота:
 
@@ -193,4 +191,6 @@ docker compose down
 
 Данные сохраняются в томе `grantshak_data`. Ключ `-v` у `docker compose down` удаляет том вместе с базой; для обычной остановки он не нужен.
 
-Полный запуск сайта и бота, настройка HTTPS и размещение на другом VPS описаны в [deploy/README.md](deploy/README.md). В серверных конфигурациях заранее указан адрес текущего VPS; при переносе его нужно заменить на свой.
+Для запуска сайта вместе с ботом используйте `docker compose up -d --build`. Перед этим убедитесь, что другой экземпляр бота с тем же токеном остановлен.
+
+При размещении на VPS укажите публичный HTTPS-адрес сайта в `ALLOWED_ORIGINS` и настройках мини-приложения MAX. Контейнер публикует порт `4000` только на `127.0.0.1`: для внешнего доступа настройте HTTPS-прокси на этот порт и закройте снаружи пути `/api/internal` и `/api/internal/`. Сертификат HTTPS и резервное копирование тома базы настраиваются на сервере отдельно.

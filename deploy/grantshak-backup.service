@@ -1,8 +1,0 @@
-[Unit]
-Description=Back up GrantHub SQLite database
-Requires=docker.service
-After=docker.service
-
-[Service]
-Type=oneshot
-ExecStart=/bin/sh /opt/grantshak/deploy/backup.sh
