@@ -6,12 +6,11 @@ import { useAppData } from "../model/use-app-data";
 import backgroundImage from "@/shared/assets/home/background.png";
 import { BottomNavigation } from "@/widgets/bottom-navigation";
 import { CatalogScreen } from "./CatalogScreen";
-import { ChatScreen } from "./ChatScreen";
 import { HomeScreen } from "./HomeScreen";
 import { ProfileScreen } from "./ProfileScreen";
 
-type View = "home" | "catalog" | "favorites" | "profile" | "assistant";
-const views: View[] = ["home", "catalog", "favorites", "profile", "assistant"];
+type View = "home" | "catalog" | "favorites" | "profile";
+const views: View[] = ["home", "catalog", "favorites", "profile"];
 
 function readView(): View {
     const hash = window.location.hash.slice(1);
@@ -82,7 +81,7 @@ export function GrantsPage() {
 
     return (
         <div ref={shellRef} className={`app-shell app-shell--${view}${view === "favorites" && visibleGrants.length === 0 ? " app-shell--empty" : ""} relative isolate flex min-h-dvh w-full max-w-none flex-col overflow-visible rounded-none border-0 bg-background [--app-width:100%] [--app-content-width:1248px] [--app-gutter:32px] [--app-nav-height:calc(73px+env(safe-area-inset-bottom,0px))] lg:[--app-nav-height:64px] [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-white/30 [&_a:focus-visible]:outline-none [&_a:focus-visible]:ring-2 [&_a:focus-visible]:ring-white/30`}>
-            <div className={`app-backdrop fixed inset-0 after:min-h-0 ${view === "assistant" ? "after:hidden" : ""}`} aria-hidden="true"><img className="inset-0 h-full w-full object-cover" src={backgroundImage} alt="" /></div>
+            <div className="app-backdrop fixed inset-0 after:min-h-0" aria-hidden="true"><img className="inset-0 h-full w-full object-cover" src={backgroundImage} alt="" /></div>
             <BottomNavigation activeTab={view} favoriteCount={favoriteIds.length} onNavigate={navigate} />
             {data.mutationError && <div role="alert" className="mx-auto w-full max-w-7xl px-4 py-3 text-sm md:px-8">{data.mutationError} <button className="underline" onClick={data.clearMutationError}>Закрыть</button></div>}
             {view === "home" && (
@@ -122,9 +121,6 @@ export function GrantsPage() {
                     catalog.applyProfile(categoryId, stage);
                     navigate("catalog");
                 }} />
-            )}
-            {view === "assistant" && (
-                <ChatScreen grants={grants} onSendMessage={data.askAssistant} onOpenGrant={setSelectedGrant} />
             )}
             <GrantDetails
                 grant={selectedGrant}

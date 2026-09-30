@@ -71,13 +71,6 @@ export function useAppData() {
     setProfile(saved)
   }
 
-  async function askAssistant(message: string) {
-    if (!token.current) throw new Error('Сессия недоступна. Откройте приложение заново.')
-    return apiRequest<{ text: string; grantIds: string[] }>('/assistant', {
-      method: 'POST', body: JSON.stringify({ message }),
-    }, token.current)
-  }
-
-  return { grants, favoriteIds, profile, loading, error, mutationError, toggleFavorite, saveProfile, askAssistant,
+  return { grants, favoriteIds, profile, loading, error, mutationError, toggleFavorite, saveProfile,
     retry: () => { setLoading(true); setError(''); setAttempt(value => value + 1) }, clearMutationError: () => setMutationError('') }
 }
